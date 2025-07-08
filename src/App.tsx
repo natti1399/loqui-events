@@ -404,8 +404,8 @@ function App() {
               <div className="relative">
                 <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 relative">
                   <img 
-                    src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
-                    alt="Sandra, founder of Loqui Events"
+                    src="/sandra-hodd.jpg"
+                    alt="Sandra Hödd, founder of Loqui Events"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
@@ -414,7 +414,7 @@ function App() {
                 {/* Floating Badge */}
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">Sandra</div>
+                    <div className="text-2xl font-bold text-purple-600 mb-1">Sandra Hödd</div>
                     <div className="text-sm text-gray-600">Grunnlegger</div>
                   </div>
                 </div>
