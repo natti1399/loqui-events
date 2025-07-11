@@ -1,0 +1,5 @@
+# Netlify CMS admin interface
+/admin/* /admin/index.html 200
+
+# SPA fallback for client-side routing
+/* /index.html 200

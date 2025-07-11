@@ -1,13 +1,98 @@
 <!doctype html>
-<html lang="no">
+<html lang="nb">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loqui Events - Møt nye mennesker på en gøyal måte</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Loqui Events - Møt nye mennesker på en gøyal måte i Oslo</title>
+    <meta name="description" content="Loqui Events arrangerer sosiale og inkluderende aktiviteter i Oslo. Møt nye venner gjennom kreative workshops, fitness events og sosiale sammenkomster." />
+    <meta name="keywords" content="sosiale events Oslo, møt nye venner, aktiviteter Oslo, workshops, fitness events, vennskap, sosiale sammenkomster" />
+    <link rel="canonical" href="https://loquievents.com" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://loquievents.com" />
+    <meta property="og:title" content="Loqui Events - Møt nye mennesker på en gøyal måte" />
+    <meta property="og:description" content="Loqui Events arrangerer sosiale og inkluderende aktiviteter i Oslo. Møt nye venner gjennom kreative workshops, fitness events og sosiale sammenkomster." />
+    <meta property="og:image" content="https://loquievents.com/Loqui events logo.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="nb_NO" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://loquievents.com" />
+    <meta name="twitter:title" content="Loqui Events - Møt nye mennesker på en gøyal måte" />
+    <meta name="twitter:description" content="Loqui Events arrangerer sosiale og inkluderende aktiviteter i Oslo. Møt nye venner gjennom kreative workshops, fitness events og sosiale sammenkomster." />
+    <meta name="twitter:image" content="https://loquievents.com/Loqui events logo.jpg" />
+    
+    <!-- Favicon and PWA -->
+    <link rel="icon" type="image/webp" href="/optimized/Loqui events logo.webp" />
+    <link rel="apple-touch-icon" href="/optimized/Loqui events logo.webp" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Loqui Events" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#8b5cf6" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://images.pexels.com">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+    
+    <!-- Preload hero image -->
+    <link rel="preload" href="https://images.pexels.com/photos/1267697/pexels-photo-1267697.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop" as="image" type="image/jpeg">
+    
+    <!-- Critical CSS inline -->
+    <style>
+      /* Critical above-the-fold styles */
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{font-family:'Poppins',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+      .min-h-screen{min-height:100vh}
+      .fixed{position:fixed}
+      .relative{position:relative}
+      .z-50{z-index:50}
+      .bg-white{background-color:#fff}
+      .text-white{color:#fff}
+      .opacity-0{opacity:0}
+      .transition-all{transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+    </style>
+    
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Loqui Events",
+      "url": "https://loquievents.com",
+      "logo": "https://loquievents.com/Loqui events logo.jpg",
+      "description": "Loqui Events arrangerer sosiale og inkluderende aktiviteter i Oslo for å hjelpe mennesker med å møte nye venner.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Oslo",
+        "addressCountry": "NO"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+47-45-11-76-51",
+        "contactType": "customer service",
+        "email": "sandrahodds@loquievents.com"
+      },
+      "sameAs": [
+        "https://instagram.com/loquievents",
+        "https://www.tiktok.com/@loqui.oslo",
+        "https://www.facebook.com/loquievent"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,36 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Instagram, Menu, X, Calendar, Phone, Mail, MapPin, Clock, CreditCard, ArrowRight, Users, Heart, Star } from 'lucide-react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { Menu, X, Calendar, Phone, Mail, MapPin, Clock, CreditCard, ArrowRight, Users, Heart, Star, Instagram } from 'lucide-react';
+import { useEvents } from './hooks/useEvents';
+import { formatEventDate } from './utils/markdownParser';
 
-// TikTok icon component since it's not in lucide-react
-const TikTokIcon = ({ size = 18 }: { size?: number }) => (
+// Custom icons for social media
+const TikTokIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
 
-// Facebook icon component
-const FacebookIcon = ({ size = 18 }: { size?: number }) => (
+const FacebookIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
   </svg>
 );
 
-// Mastercard icon component
-const MastercardIcon = ({ size = 24 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="9" cy="12" r="6" fill="#EB001B"/>
-    <circle cx="15" cy="12" r="6" fill="#F79E1B"/>
-    <path d="M12 7.5c1.24 1.42 2 3.27 2 5.25s-.76 3.83-2 5.25c-1.24-1.42-2-3.27-2-5.25s.76-3.83 2-5.25z" fill="#FF5F00"/>
-  </svg>
-);
+// Proper dynamic imports for code splitting
+const LazyImage = lazy(() => import('./components/LazyImage'));
+const SocialIcons = lazy(() => import('./components/SocialIcons'));
+const PaymentIcons = lazy(() => import('./components/PaymentIcons'));
+
+
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const { events, upcomingEvents, loading, error } = useEvents();
 
+  // Optimized scroll handler with throttling
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -43,30 +54,99 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-poppins">
+    <div className="min-h-screen bg-white font-poppins scroll-smooth">
+      {/* JSON-LD Schema for Events */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Loqui Events",
+          "description": "Loqui Events arrangerer sosiale og inkluderende aktiviteter for deg som vil få nye venner og minner for livet.",
+          "url": "https://loquievents.com",
+          "logo": "https://loquievents.com/optimized/Loqui events logo.webp",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+47-45-11-76-51",
+            "contactType": "customer service",
+            "email": "sandrahodds@loquievents.com"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Oslo",
+            "addressCountry": "NO"
+          },
+          "sameAs": [
+            "https://instagram.com/loquievents",
+            "https://www.tiktok.com/@loqui.oslo",
+            "https://www.facebook.com/loquievent"
+          ],
+          "event": [
+            {
+              "@type": "Event",
+              "name": "Sterk og Selvsikker",
+              "description": "Er du klar for å føle deg sterk, trygg og badass – sammen med andre jenter? Vi gir deg den beste måten å slippe ut damp, møte nye folk og få en pause fra hverdagen.",
+              "startDate": "2025-01-25T15:00:00+01:00",
+              "location": {
+                "@type": "Place",
+                "name": "Mudo Gym Carl Berner",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Oslo",
+                  "addressCountry": "NO"
+                }
+              },
+              "organizer": {
+                "@type": "Organization",
+                "name": "Loqui Events"
+              }
+            },
+            {
+              "@type": "Event",
+              "name": "Paint & Sip: Vennskap & Vin",
+              "description": "En sosial og kreativ kveld hvor du maler ditt eget kunstverk mens du nyter et glass vin. Kom alene eller med en venn – vi legger opp til nye bekjentskaper og god stemning.",
+              "startDate": "2025-02-10T18:00:00+01:00",
+              "location": {
+                "@type": "Place",
+                "name": "Loqui Studio",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Oslo",
+                  "addressCountry": "NO"
+                }
+              },
+              "organizer": {
+                "@type": "Organization",
+                "name": "Loqui Events"
+              }
+            }
+          ]
+        })}
+      </script>
       {/* Header - Enhanced with glassmorphism */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrollY > 20 ? 'bg-white/95 backdrop-blur-xl shadow-xl border-b border-gray-100' : 'bg-white/90 backdrop-blur-lg'
-      }`}>
+      } hover:shadow-lg`} role="banner">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 sm:h-18">
             {/* Logo - Enhanced */}
-            <div className="flex items-center space-x-3 opacity-0 animate-fade-in group">
+            <div className="flex items-center space-x-3 opacity-0 animate-fade-in group cursor-pointer">
               <div className="relative">
-                <img 
-                  src="/Loqui events logo.jpg" 
-                  alt="Loqui Events Logo" 
-                  className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover transition-all duration-300 group-hover:scale-110 shadow-lg"
-                />
+                <Suspense fallback={<div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 animate-pulse"></div>}>
+                  <LazyImage 
+                    src="/optimized/Loqui events logo.webp" 
+                    alt="Loqui Events - Social events and activities in Oslo" 
+                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg"
+                  />
+                </Suspense>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105">
                 Loqui Events
               </span>
             </div>
 
             {/* Desktop Navigation - Enhanced */}
-            <nav className="hidden md:flex space-x-8 lg:space-x-10">
+            <nav className="hidden md:flex space-x-8 lg:space-x-10" role="navigation" aria-label="Main navigation">
               {[
                 { name: 'Hjem', id: 'hjem' },
                 { name: 'Kommende Events', id: 'events' },
@@ -77,7 +157,7 @@ function App() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="relative text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 hover:scale-105 opacity-0 animate-fade-in py-2 px-1 group"
+                  className="relative text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 hover:scale-105 opacity-0 animate-fade-in py-2 px-1 group hover:bg-purple-50 rounded-lg"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {item.name}
@@ -88,22 +168,9 @@ function App() {
 
             {/* Social Icons - Enhanced */}
             <div className="hidden md:flex items-center space-x-2 opacity-0 animate-fade-in" style={{ animationDelay: '500ms' }}>
-              {[
-                { href: "https://instagram.com/loquievents", icon: Instagram, label: "Instagram" },
-                { href: "https://www.tiktok.com/@loqui.oslo", icon: TikTokIcon, label: "TikTok" },
-                { href: "https://www.facebook.com/loquievent", icon: FacebookIcon, label: "Facebook" }
-              ].map((social, index) => (
-                <a 
-                  key={social.label}
-                  href={social.href} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-600 hover:text-purple-600 transition-all duration-300 p-3 rounded-xl hover:bg-purple-50 hover:scale-110 hover:shadow-lg group"
-                  aria-label={social.label}
-                >
-                  <social.icon size={20} />
-                </a>
-              ))}
+              <Suspense fallback={<div className="flex space-x-2"><div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div><div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div><div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div></div>}>
+                <SocialIcons />
+              </Suspense>
             </div>
 
             {/* Mobile Menu Button - Enhanced */}
@@ -157,13 +224,14 @@ function App() {
         </div>
       </header>
 
-      {/* Hero Section - Enhanced with modern gradient and floating elements */}
-      <section id="hjem" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-18 overflow-hidden">
+      <main role="main">
+        {/* Hero Section - Enhanced with modern gradient and floating elements */}
+        <section id="hjem" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-18 overflow-hidden">
         {/* Enhanced Background */}
         <div className="absolute inset-0">
-          <img 
+          <LazyImage 
             src="https://images.pexels.com/photos/1267697/pexels-photo-1267697.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop"
-            alt="People laughing and having fun together"
+            alt="Group of diverse young people laughing and socializing together at a fun social event"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-purple-600/70 to-pink-600/60"></div>
@@ -172,9 +240,11 @@ function App() {
 
         {/* Floating Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute top-3/4 right-1/4 w-24 h-24 bg-purple-300/20 rounded-full blur-lg animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-pink-300/15 rounded-full blur-lg animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse hover:scale-110 transition-transform duration-500"></div>
+          <div className="absolute top-3/4 right-1/4 w-24 h-24 bg-purple-300/20 rounded-full blur-lg animate-pulse hover:scale-110 transition-transform duration-500" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-pink-300/15 rounded-full blur-lg animate-pulse hover:scale-110 transition-transform duration-500" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 right-1/3 w-16 h-16 bg-yellow-300/10 rounded-full blur-lg animate-pulse hover:scale-110 transition-transform duration-500" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute bottom-1/3 right-1/5 w-28 h-28 bg-blue-300/10 rounded-full blur-xl animate-pulse hover:scale-110 transition-transform duration-500" style={{ animationDelay: '4s' }}></div>
         </div>
 
         {/* Enhanced Content */}
@@ -219,29 +289,12 @@ function App() {
             </a>
           </div>
 
-          {/* Stats Section */}
-          <div className="mt-16 sm:mt-20 grid grid-cols-3 gap-8 max-w-2xl mx-auto opacity-0 animate-fade-in-up" style={{ animationDelay: '800ms' }}>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-2">50+</div>
-              <div className="text-white/80 text-sm sm:text-base">Events arrangert</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-2">500+</div>
-              <div className="text-white/80 text-sm sm:text-base">Nye vennskap</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-2">4.9</div>
-              <div className="text-white/80 text-sm sm:text-base flex items-center justify-center">
-                <Star size={16} className="text-yellow-400 mr-1" />
-                Rating
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Events Section - Enhanced with modern cards */}
-      <section id="events" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white relative">
+        </div>
+        </section>
+
+        {/* Events Section - Enhanced with modern cards */}
+        <section id="events" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white relative">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -263,104 +316,117 @@ function App() {
             </p>
           </div>
 
-          <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-8 lg:gap-12 max-w-5xl mx-auto">
-            {/* Event 1 - Enhanced Card */}
-            <div className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 opacity-0 animate-fade-in-up hover:scale-105 relative overflow-hidden" style={{ animationDelay: '600ms' }}>
-              {/* Card Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-medium">
-                    <Users size={14} className="mr-1" />
-                    Fitness Event
-                  </span>
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Heart size={20} className="text-white" />
-                  </div>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors duration-300 mb-4">
-                  Sterk og Selvsikker
-                </h3>
-                
-                <div className="space-y-2 text-gray-600 mb-6">
-                  <div className="flex items-center space-x-2">
-                    <Calendar size={16} className="text-purple-500" />
-                    <p className="font-semibold text-base">25. januar 2025, 15:00</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <MapPin size={16} className="text-purple-500" />
-                    <p className="text-base">Mudo Gym Carl Berner</p>
-                  </div>
-                </div>
-                
-                <p className="text-gray-700 leading-relaxed text-base mb-8">
-                  Er du klar for å føle deg sterk, trygg og badass – sammen med andre jenter? Vi gir deg den beste måten å slippe ut damp, møte nye folk og få en pause fra hverdagen.
-                </p>
-                
-                <button className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-base flex items-center justify-center space-x-2 group">
-                  <CreditCard size={18} />
-                  <span>KJØP BILLETT</span>
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
-              </div>
+          {/* Loading and Error States */}
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
             </div>
-
-            {/* Event 2 - Enhanced Card */}
-            <div className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 opacity-0 animate-fade-in-up hover:scale-105 relative overflow-hidden" style={{ animationDelay: '800ms' }}>
-              {/* Card Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-sm font-medium">
-                    <Users size={14} className="mr-1" />
-                    Kreativ Event
-                  </span>
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Star size={20} className="text-white" />
-                  </div>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors duration-300 mb-4">
-                  Paint & Sip:<br />
-                  Vennskap & Vin
-                </h3>
-                
-                <div className="space-y-2 text-gray-600 mb-6">
-                  <div className="flex items-center space-x-2">
-                    <Calendar size={16} className="text-purple-500" />
-                    <p className="font-semibold text-base">10. februar 2025, kl. 18.00</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <MapPin size={16} className="text-purple-500" />
-                    <p className="text-base">Loqui Studio, Oslo</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-3 mb-8">
-                  <p className="text-gray-700 leading-relaxed text-base">
-                    En sosial og kreativ kveld hvor du maler ditt eget kunstverk mens du nyter et glass vin.
-                  </p>
-                  <p className="text-gray-700 leading-relaxed text-base">
-                    Kom alene eller med en venn – vi legger opp til nye bekjentskaper og god stemning.
-                  </p>
-                </div>
-                
-                <button className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-base flex items-center justify-center space-x-2 group">
-                  <CreditCard size={18} />
-                  <span>KJØP BILLETT</span>
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
-              </div>
+          )}
+          
+          {error && (
+            <div className="text-center py-12">
+              <p className="text-red-600 mb-4">Kunne ikke laste events: {error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Prøv igjen
+              </button>
             </div>
-          </div>
+          )}
+          
+          {/* Dynamic Events Grid */}
+          {!loading && !error && (
+            <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-8 lg:gap-12 max-w-5xl mx-auto">
+              {upcomingEvents.slice(0, 4).map((event, index) => {
+                const getCategoryColor = (category: string) => {
+                  switch (category.toLowerCase()) {
+                    case 'creative': return { bg: 'from-pink-50', border: 'bg-pink-100 text-pink-700', icon: 'from-pink-500 to-purple-600' };
+                    case 'quiz': return { bg: 'from-blue-50', border: 'bg-blue-100 text-blue-700', icon: 'from-blue-500 to-purple-600' };
+                    case 'game night': return { bg: 'from-green-50', border: 'bg-green-100 text-green-700', icon: 'from-green-500 to-purple-600' };
+                    default: return { bg: 'from-purple-50', border: 'bg-purple-100 text-purple-700', icon: 'from-purple-500 to-purple-600' };
+                  }
+                };
+                
+                const colors = getCategoryColor(event.category);
+                
+                return (
+                  <div 
+                    key={event.id} 
+                    className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 opacity-0 animate-fade-in-up hover:scale-105 relative overflow-hidden" 
+                    style={{ animationDelay: `${600 + index * 200}ms` }}
+                  >
+                    {/* Card Background Gradient */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${colors.bg} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full ${colors.border} text-sm font-medium`}>
+                          <Users size={14} className="mr-1" />
+                          {event.category}
+                        </span>
+                        <div className={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center`}>
+                          {event.category.toLowerCase() === 'creative' ? <Star size={20} className="text-white" /> : <Heart size={20} className="text-white" />}
+                        </div>
+                      </div>
+
+                      <h3 className="text-2xl sm:text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors duration-300 mb-4">
+                        {event.title}
+                      </h3>
+                      
+                      <div className="space-y-2 text-gray-600 mb-6">
+                        <div className="flex items-center space-x-2">
+                          <Calendar size={16} className="text-purple-500" />
+                          <p className="font-semibold text-base">{formatEventDate(event.date)}, {event.time}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <MapPin size={16} className="text-purple-500" />
+                          <p className="text-base">{event.location}</p>
+                        </div>
+                        {event.price && (
+                          <div className="flex items-center space-x-2">
+                            <CreditCard size={16} className="text-purple-500" />
+                            <p className="text-base font-semibold">{event.price} kr</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-700 leading-relaxed text-base mb-8">
+                        {event.shortDescription || event.description}
+                      </p>
+                      
+                      <a 
+                        href={event.stripeLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-base flex items-center justify-center space-x-2 group"
+                      >
+                        <CreditCard size={18} />
+                        <span>KJØP BILLETT</span>
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Show message if no upcoming events */}
+              {upcomingEvents.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calendar size={24} className="text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Ingen kommende events</h3>
+                  <p className="text-gray-600">Nye events kommer snart! Følg oss på sosiale medier for oppdateringer.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </section>
+        </section>
 
-      {/* About Section - Enhanced with modern layout */}
-      <section id="om-oss" className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+        {/* About Section - Enhanced with modern layout */}
+        <section id="om-oss" className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-purple-100 to-transparent rounded-full blur-3xl opacity-30"></div>
         <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-pink-100 to-transparent rounded-full blur-3xl opacity-30"></div>
@@ -403,9 +469,9 @@ function App() {
             <div className="flex justify-center opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
               <div className="relative">
                 <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 relative">
-                  <img 
-                    src="/sandra-hodd.jpg"
-                    alt="Sandra Hödd, founder of Loqui Events"
+                  <LazyImage 
+                    src="/optimized/Portrett bilde, Sandra.webp"
+                    alt="Sandra, founder and CEO of Loqui Events, smiling warmly in a professional portrait"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
@@ -414,7 +480,7 @@ function App() {
                 {/* Floating Badge */}
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">Sandra Hödd</div>
+                    <div className="text-2xl font-bold text-purple-600 mb-1">Sandra</div>
                     <div className="text-sm text-gray-600">Grunnlegger</div>
                   </div>
                 </div>
@@ -427,10 +493,10 @@ function App() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Our Events Gallery - Enhanced */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white">
+        {/* Our Events Gallery - Enhanced */}
+        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-medium mb-4 opacity-0 animate-fade-in-up">
@@ -448,35 +514,43 @@ function App() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
-                image: "/20241114_180846.jpg",
+                image: "/optimized/20241114_180846.webp",
                 title: "Paint and Sip",
                 delay: "600ms",
-                color: "from-purple-500 to-pink-500"
+                color: "from-purple-500 to-pink-500",
+                alt: "Participants enjoying a creative Paint and Sip event, painting while socializing"
               },
               {
-                image: "/image2.jpeg",
+                image: "/optimized/image2.webp",
                 title: "Quiz Night",
                 delay: "800ms",
-                color: "from-blue-500 to-purple-500"
+                color: "from-blue-500 to-purple-500",
+                alt: "Group of friends having fun at a quiz night event, laughing and competing"
               },
               {
-                image: "/20240816_190922.jpg",
+                image: "/optimized/20240816_190922.webp",
                 title: "Game night",
                 delay: "1000ms",
-                color: "from-pink-500 to-yellow-500"
+                color: "from-pink-500 to-yellow-500",
+                alt: "People playing board games and socializing at a fun game night event"
               }
             ].map((event, index) => (
               <div key={index} className="group text-center opacity-0 animate-fade-in-up" style={{ animationDelay: event.delay }}>
-                <div className="relative h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-3xl mb-6 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-                  <img 
+                <div className="relative h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-3xl mb-6 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:shadow-purple-500/20">
+                  <LazyImage 
                     src={event.image}
-                    alt={`${event.title} event`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    alt={event.alt}
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
                   {/* Subtle overlay effect */}
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Shimmer effect on hover */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                  </div>
                 </div>
                 
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 hover:text-purple-600 transition-colors duration-300">
@@ -486,10 +560,10 @@ function App() {
             ))}
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Host an Event Section */}
-      <section id="book-event" className="form-section py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        {/* Host an Event Section */}
+        <section id="book-event" className="form-section py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -522,7 +596,7 @@ function App() {
                     id="company"
                     name="company"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm hover:border-purple-300 hover:shadow-md focus:scale-105"
                     placeholder="Skriv inn bedriftsnavn eller ditt navn"
                   />
                 </div>
@@ -537,7 +611,7 @@ function App() {
                     id="email"
                     name="email"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm hover:border-purple-300 hover:shadow-md focus:scale-105"
                     placeholder="din@epost.no"
                   />
                 </div>
@@ -553,7 +627,7 @@ function App() {
                     type="text"
                     id="date"
                     name="date"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm hover:border-purple-300 hover:shadow-md focus:scale-105"
                     placeholder="f.eks. 15. mars 2025 eller mars 2025"
                   />
                 </div>
@@ -568,7 +642,7 @@ function App() {
                     id="attendees"
                     name="attendees"
                     min="1"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm hover:border-purple-300 hover:shadow-md focus:scale-105"
                     placeholder="20"
                   />
                 </div>
@@ -582,7 +656,7 @@ function App() {
                 <select
                   id="eventType"
                   name="eventType"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm hover:border-purple-300 hover:shadow-md focus:scale-105"
                 >
                   <option value="">Velg type event</option>
                   <option value="Workshop">Workshop</option>
@@ -601,7 +675,7 @@ function App() {
                   id="message"
                   name="message"
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none hover:border-purple-300 hover:shadow-md focus:scale-105"
                   placeholder="Fortell oss mer om ditt event, spesielle ønsker eller krav..."
                 ></textarea>
               </div>
@@ -610,19 +684,19 @@ function App() {
               <div className="text-center pt-4">
                 <button
                   type="submit"
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg flex items-center justify-center space-x-2 mx-auto"
+                  className="group px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 text-lg flex items-center justify-center space-x-2 mx-auto active:scale-95"
                 >
                   <span>Send forespørsel</span>
-                  <ArrowRight size={20} />
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </button>
               </div>
             </form>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Contact Section - Enhanced */}
-      <section id="kontakt" className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+        {/* Contact Section - Enhanced */}
+        <section id="kontakt" className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -703,10 +777,10 @@ function App() {
                       href={social.href} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className={`group w-14 h-14 bg-gradient-to-br ${social.color} rounded-2xl flex items-center justify-center text-white hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl`}
+                      className={`group w-14 h-14 bg-gradient-to-br ${social.color} rounded-2xl flex items-center justify-center text-white hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 hover:rotate-3 active:scale-95`}
                       aria-label={social.label}
                     >
-                      <social.icon size={24} />
+                      <social.icon size={24} className="group-hover:scale-110 transition-transform duration-300" />
                     </a>
                   ))}
                 </div>
@@ -714,10 +788,11 @@ function App() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      </main>
 
       {/* Footer - Enhanced */}
-      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 sm:py-16 relative overflow-hidden">
+      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 sm:py-16 relative overflow-hidden" role="contentinfo">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -730,9 +805,9 @@ function App() {
             {/* Enhanced Logo */}
             <div className="flex items-center justify-center space-x-4 group">
               <div className="relative">
-                <img 
-                  src="/Loqui events logo.jpg" 
-                  alt="Loqui Events Logo" 
+                <LazyImage 
+                  src="/optimized/Loqui events logo.webp" 
+                  alt="Loqui Events - Social events and activities in Oslo" 
                   className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover transition-all duration-300 group-hover:scale-110 shadow-lg"
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -752,22 +827,23 @@ function App() {
               <p className="text-sm sm:text-base text-gray-400 mb-6">Betalingsmetoder</p>
               <div className="flex justify-center space-x-4 sm:space-x-6">
                 {/* Vipps */}
-                <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <img 
-                    src="/vipps icon.webp" 
-                    alt="Vipps" 
-                    className="w-7 h-7 object-contain"
-                  />
-                </div>
+                 <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                   <img 
+                     src="/vipps icon.webp" 
+                     alt="Vipps payment method accepted" 
+                     className="w-7 h-7 object-contain"
+                     loading="lazy"
+                   />
+                 </div>
                 
                 {/* Visa */}
-                <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <img 
-                    src="/visa.svg" 
-                    alt="Visa" 
-                    className="w-7 h-7 object-contain"
-                  />
-                </div>
+                 <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                   <img 
+                     src="/visa.svg" 
+                     alt="Visa credit card payment accepted" 
+                     className="w-7 h-7 object-contain"
+                   />
+                 </div>
                 
                 {/* Mastercard */}
                 <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
@@ -776,9 +852,9 @@ function App() {
                 
                 {/* Apple Pay */}
                 <div className="group bg-white rounded-2xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <img 
-                    src="/Apple_Pay-Logo.wine.png" 
-                    alt="Apple Pay" 
+                  <LazyImage 
+                    src="/optimized/Apple_Pay-Logo.wine.webp" 
+                    alt="Apple Pay mobile payment accepted" 
                     className="w-7 h-7 object-contain"
                   />
                 </div>

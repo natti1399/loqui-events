@@ -1,0 +1,43 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/optimized"
+public_folder: "/optimized"
+
+locale: 'nb'
+
+collections:
+  - name: "events"
+    label: "Events"
+    folder: "src/data/events"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Tittel", name: "title", widget: "string", required: true}
+      - {label: "Dato", name: "date", widget: "datetime", required: true, format: "YYYY-MM-DD"}
+      - {label: "Tid", name: "time", widget: "string", required: true, hint: "f.eks. 18:00-21:00"}
+      - {label: "Lokasjon", name: "location", widget: "string", required: true}
+      - {label: "Pris (NOK)", name: "price", widget: "number", required: true, min: 0}
+      - {label: "Beskrivelse", name: "description", widget: "text", required: true}
+      - {label: "Bilde", name: "image", widget: "image", required: true, hint: "Last opp et bilde for eventet"}
+      - {label: "Stripe betalingslenke", name: "stripeLink", widget: "string", required: true, hint: "Full URL til Stripe betaling"}
+      - {label: "Maks deltakere", name: "maxParticipants", widget: "number", required: true, min: 1}
+      - {label: "Kategori", name: "category", widget: "select", required: true, options: ["Workshop", "Social", "Fitness", "Creative", "Quiz", "Game Night"]}
+      - {label: "Status", name: "status", widget: "select", required: true, options: ["upcoming", "sold-out", "cancelled"], default: "upcoming"}
+      - {label: "Kort beskrivelse", name: "shortDescription", widget: "string", required: false, hint: "Kort tekst for event-kort"}
+      - {label: "Publisert", name: "published", widget: "boolean", default: true}
+
+  - name: "settings"
+    label: "Innstillinger"
+    files:
+      - label: "Generelle innstillinger"
+        name: "general"
+        file: "src/data/settings/general.md"
+        fields:
+          - {label: "Nettside tittel", name: "siteTitle", widget: "string"}
+          - {label: "Beskrivelse", name: "siteDescription", widget: "text"}
+          - {label: "Kontakt e-post", name: "contactEmail", widget: "string"}
+          - {label: "Telefonnummer", name: "phone", widget: "string"}
+          - {label: "Adresse", name: "address", widget: "string"}
+          - {label: "Åpningstider", name: "openingHours", widget: "string"}
