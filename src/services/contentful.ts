@@ -37,7 +37,6 @@ export const getEvents = async (): Promise<ContentfulEvent[]> => {
     });
     return response.items as ContentfulEvent[];
   } catch (error) {
-    console.error('Error fetching events from Contentful:', error);
     return [];
   }
 };
@@ -47,7 +46,6 @@ export const getEvent = async (id: string): Promise<ContentfulEvent | null> => {
     const entry = await client.getEntry(id);
     return entry as ContentfulEvent;
   } catch (error) {
-    console.error('Error fetching event from Contentful:', error);
     return null;
   }
 };

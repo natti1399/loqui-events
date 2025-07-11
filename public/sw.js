@@ -23,40 +23,34 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('Service Worker: Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('Service Worker: Static assets cached');
         return self.skipWaiting();
       })
-      .catch((error) => {
-        console.error('Service Worker: Error caching static assets:', error);
+      .catch(() => {
+        // Failed to cache static assets
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('Service Worker: Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('Service Worker: Activated');
         return self.clients.claim();
       })
   );
@@ -100,7 +94,6 @@ async function handleImageRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.error('Service Worker: Error handling image request:', error);
     // Return a fallback image or empty response
     return new Response('', { status: 404 });
   }
@@ -133,7 +126,6 @@ async function handleSameOriginRequest(request) {
     const networkResponse = await networkPromise;
     return networkResponse || new Response('Offline', { status: 503 });
   } catch (error) {
-    console.error('Service Worker: Error handling same-origin request:', error);
     return new Response('Error', { status: 500 });
   }
 }
@@ -148,7 +140,6 @@ async function handleExternalRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.error('Service Worker: Network failed, trying cache:', error);
     const cachedResponse = await caches.match(request);
     return cachedResponse || new Response('Offline', { status: 503 });
   }
@@ -163,7 +154,6 @@ self.addEventListener('sync', (event) => {
 
 async function syncContactForm() {
   // Handle offline form submissions when back online
-  console.log('Service Worker: Syncing contact form submissions');
 }
 
 // Push notifications (for future use)

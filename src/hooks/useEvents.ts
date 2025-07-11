@@ -82,7 +82,6 @@ export const useEvents = () => {
       setEvents(publishedEvents);
     } catch (err) {
       setError('Failed to load events');
-      console.error('Error loading events:', err);
     } finally {
       setLoading(false);
     }

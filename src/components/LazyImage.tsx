@@ -4,9 +4,11 @@ interface LazyImageProps {
   src: string;
   alt: string;
   className?: string;
+  sizes?: string;
+  priority?: boolean;
 }
 
-const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className }) => {
+const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className, sizes, priority = false }) => {
   const [imageSrc, setImageSrc] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(true);
@@ -19,9 +21,12 @@ const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className }) => {
   useEffect(() => {
     if (!src) return;
 
+    // Try WebP first, fallback to original format
     const webpSrc = src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
-    const img = new Image();
-
+    
+    // Use Image constructor for preloading
+    const testImage = new Image();
+    
     const handleLoad = () => {
       if (isMounted) {
         setImageSrc(webpSrc);
@@ -31,18 +36,19 @@ const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className }) => {
 
     const handleError = () => {
       if (isMounted) {
+        // Fallback to original format
         setImageSrc(src);
         setIsLoaded(true);
       }
     };
 
-    img.onload = handleLoad;
-    img.onerror = handleError;
-    img.src = webpSrc;
+    testImage.onload = handleLoad;
+    testImage.onerror = handleError;
+    testImage.src = webpSrc;
 
     return () => {
-      img.onload = null;
-      img.onerror = null;
+      testImage.onload = null;
+      testImage.onerror = null;
     };
   }, [src, isMounted]);
 
@@ -59,8 +65,10 @@ const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className }) => {
       src={imageSrc}
       alt={alt}
       className={className}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
       decoding="async"
+      sizes={sizes}
+      fetchPriority={priority ? 'high' : 'auto'}
     />
   );
 };

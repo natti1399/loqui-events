@@ -13,6 +13,9 @@ export default defineConfig({
     include: ['react', 'react-dom'],
     exclude: ['lucide-react'],
   },
+  define: {
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+  },
   build: {
     target: 'es2020',
     minify: 'terser',
@@ -38,11 +41,18 @@ export default defineConfig({
             if (id.includes('lucide-react')) {
               return 'icons';
             }
+            if (id.includes('contentful')) {
+              return 'contentful';
+            }
             return 'vendor';
           }
           // Separate chunk for components
           if (id.includes('src/components')) {
             return 'components';
+          }
+          // Separate chunk for services
+          if (id.includes('src/services')) {
+            return 'services';
           }
         },
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -50,10 +60,10 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 300,
     sourcemap: false,
     cssCodeSplit: true,
-    assetsInlineLimit: 2048,
+    assetsInlineLimit: 1024,
     reportCompressedSize: false,
   },
   server: {

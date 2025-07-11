@@ -48,7 +48,6 @@ function App() {
         setEvents(contentfulEvents);
         setError(null);
       } catch (err) {
-        console.error('Error fetching events:', err);
         setError('Kunne ikke laste events fra Contentful');
       } finally {
         setLoading(false);
@@ -64,8 +63,6 @@ function App() {
     return eventDate >= new Date();
   }).sort((a, b) => new Date(a.fields.date).getTime() - new Date(b.fields.date).getTime());
 
-  // Debug: Log to console to check if component is mounting
-  console.log('App component mounted', { events, upcomingEvents, loading, error });
 
   // Optimized scroll handler with throttling
   useEffect(() => {
@@ -191,6 +188,8 @@ function App() {
                     src="/optimized/Loqui events logo.webp" 
                     alt="Loqui Events - Social events and activities in Oslo" 
                     className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg"
+                    priority={true}
+                    sizes="(max-width: 640px) 40px, 48px"
                   />
                 </Suspense>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -288,6 +287,8 @@ function App() {
             src="https://images.pexels.com/photos/1267697/pexels-photo-1267697.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop"
             alt="Group of diverse young people laughing and socializing together at a fun social event"
             className="w-full h-full object-cover"
+            priority={true}
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-purple-600/70 to-pink-600/60"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
@@ -606,6 +607,7 @@ function App() {
                     src="/optimized/Portrett bilde, Sandra.webp"
                     alt="Sandra, founder and CEO of Loqui Events, smiling warmly in a professional portrait"
                     className="w-full h-full object-cover"
+                    sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 384px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
                 </div>
@@ -674,6 +676,7 @@ function App() {
                     src={event.image}
                     alt={event.alt}
                     className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
@@ -942,6 +945,7 @@ function App() {
                   src="/optimized/Loqui events logo.webp" 
                   alt="Loqui Events - Social events and activities in Oslo" 
                   className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover transition-all duration-300 group-hover:scale-110 shadow-lg"
+                  sizes="(max-width: 640px) 48px, 56px"
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
