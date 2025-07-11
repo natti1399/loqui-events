@@ -1,30 +1,29 @@
-# Loqui Events - Social Events Platform
+# Loqui Events - Event Management Platform
 
-![Loqui Events](./public/Loqui%20events%20logo.jpg)
+A modern, responsive event management platform built with React, TypeScript, and Vite. Features Contentful CMS integration for dynamic event management and Stripe payment processing.
 
-## About
+## 🚀 Project Overview
 
-Loqui Events is a modern, responsive website for a Norwegian social events company that organizes inclusive activities for adults looking to meet new people and make meaningful connections in Oslo.
+**Loqui Events** is a Norwegian event management platform that allows users to browse and book events with integrated payment processing. The platform features a modern design with smooth animations, mobile responsiveness, and dynamic content management.
 
-## Features
+### Key Features
+- 🎯 **Dynamic Event Management** via Contentful CMS
+- 💳 **Stripe Payment Integration** for event bookings
+- 📱 **Fully Responsive Design** with mobile-first approach
+- ⚡ **Performance Optimized** with lazy loading and image optimization
+- 🌐 **Multi-language Support** (Norwegian/English)
+- 🎨 **Modern UI/UX** with Tailwind CSS and smooth animations
+- 🔍 **SEO Optimized** with proper meta tags and sitemap
 
-- **Modern React/TypeScript Architecture**: Built with Vite for fast development and optimized builds
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Interactive UI**: Smooth animations and modern glassmorphism effects
-- **Multi-language Support**: Norwegian language interface
-- **Event Management**: Showcase upcoming and past events
-- **Contact Forms**: Netlify form integration for event booking requests
-- **Social Media Integration**: Links to Instagram, TikTok, and Facebook
-- **Payment Integration**: Support for Vipps, Visa, Mastercard, and Apple Pay
+## 🛠 Tech Stack
 
-## Tech Stack
-
-- **Frontend**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS with custom animations
-- **Icons**: Lucide React + Custom SVG icons
-- **Fonts**: Google Fonts (Poppins)
-- **Deployment**: Ready for Netlify deployment
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS
+- **CMS**: Contentful
+- **Payments**: Stripe
+- **Deployment**: Netlify
+- **Image Optimization**: Custom WebP conversion
+- **State Management**: React Hooks
 
 ## Project Structure
 
