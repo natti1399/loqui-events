@@ -92,6 +92,22 @@ function App() {
     }
   };
 
+  // Show loading screen while initial data is being fetched
+  if (loading && events.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative mb-8">
+            <div className="w-20 h-20 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto"></div>
+            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-purple-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Laster Loqui Events</h2>
+          <p className="text-gray-600">Henter de nyeste eventene for deg...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white font-poppins scroll-smooth">
       {/* JSON-LD Schema for Events */}
@@ -355,22 +371,106 @@ function App() {
             </p>
           </div>
 
-          {/* Loading and Error States */}
-          {loading && (
+          {/* Loading State for Events Section */}
+          {loading && events.length === 0 && (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
             </div>
           )}
           
+          {/* Error State with Fallback Events */}
           {error && (
             <div className="text-center py-12">
-              <p className="text-red-600 mb-4">Kunne ikke laste events: {error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Prøv igjen
-              </button>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+                <p className="text-yellow-800 mb-4">⚠️ Kunne ikke laste events fra Contentful. Viser fallback events.</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Prøv å laste på nytt
+                </button>
+              </div>
+              
+              {/* Fallback Events */}
+              <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-8 lg:gap-12 max-w-5xl mx-auto">
+                {/* Fallback Event 1 */}
+                <div className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">Fitness</span>
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <Users size={20} className="text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors duration-300">
+                      Sterk og Selvsikker
+                    </h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      Kickboxing for jenter - føl deg sterk, trygg og badass sammen med andre jenter!
+                    </p>
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-gray-600">
+                        <Calendar size={16} className="mr-3 text-purple-500" />
+                        <span className="text-sm font-medium">25. januar 2025, 15:00</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <MapPin size={16} className="mr-3 text-purple-500" />
+                        <span className="text-sm font-medium">Mudo Gym Carl Berner</span>
+                      </div>
+                    </div>
+                    <a
+                      href="https://buy.stripe.com/test_example1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/btn w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold py-4 px-6 rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2"
+                    >
+                      <CreditCard size={18} />
+                      <span>Kjøp billett - 350 kr</span>
+                      <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </a>
+                  </div>
+                </div>
+                
+                {/* Fallback Event 2 */}
+                <div className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="px-3 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">Creative</span>
+                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <Heart size={20} className="text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 group-hover:text-pink-600 transition-colors duration-300">
+                      Paint & Sip: Vennskap & Vin
+                    </h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      En sosial og kreativ kveld hvor du maler ditt eget kunstverk mens du nyter et glass vin.
+                    </p>
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-gray-600">
+                        <Calendar size={16} className="mr-3 text-pink-500" />
+                        <span className="text-sm font-medium">10. februar 2025, 18:00</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <MapPin size={16} className="mr-3 text-pink-500" />
+                        <span className="text-sm font-medium">Loqui Studio, Oslo</span>
+                      </div>
+                    </div>
+                    <a
+                      href="https://buy.stripe.com/test_example2"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/btn w-full bg-gradient-to-r from-pink-600 to-purple-700 text-white font-semibold py-4 px-6 rounded-2xl hover:from-pink-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2"
+                    >
+                      <CreditCard size={18} />
+                      <span>Kjøp billett - 450 kr</span>
+                      <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           
