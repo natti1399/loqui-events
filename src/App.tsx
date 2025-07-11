@@ -3,6 +3,15 @@ import { Menu, X, Calendar, Phone, Mail, MapPin, Clock, CreditCard, ArrowRight, 
 import { useEvents } from './hooks/useEvents';
 import { formatEventDate } from './utils/markdownParser';
 
+// Mastercard icon component
+const MastercardIcon = ({ size = 24 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <circle cx="9" cy="12" r="6" fill="#EB001B"/>
+    <circle cx="15" cy="12" r="6" fill="#F79E1B"/>
+    <path d="M12 7.5c1.24 1.42 2 3.27 2 5.25s-.76 3.83-2 5.25c-1.24-1.42-2-3.27-2-5.25s.76-3.83 2-5.25z" fill="#FF5F00"/>
+  </svg>
+);
+
 // Custom icons for social media
 const TikTokIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -27,6 +36,9 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const { events, upcomingEvents, loading, error } = useEvents();
+
+  // Debug: Log to console to check if component is mounting
+  console.log('App component mounted', { events, upcomingEvents, loading, error });
 
   // Optimized scroll handler with throttling
   useEffect(() => {
