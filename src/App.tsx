@@ -1,6 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Menu, X, Calendar, Phone, Mail, MapPin, Clock, CreditCard, ArrowRight, Users, Heart, Star, Instagram } from 'lucide-react';
-import { useEvents } from './hooks/useEvents';
+import { getEvents, ContentfulEvent } from './services/contentful';
 import { formatEventDate } from './utils/markdownParser';
 
 // Mastercard icon component
@@ -35,7 +35,34 @@ const PaymentIcons = lazy(() => import('./components/PaymentIcons'));
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const { events, upcomingEvents, loading, error } = useEvents();
+  const [events, setEvents] = useState<ContentfulEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch events from Contentful
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const contentfulEvents = await getEvents();
+        setEvents(contentfulEvents);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching events:', err);
+        setError('Kunne ikke laste events fra Contentful');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Filter upcoming events
+  const upcomingEvents = events.filter(event => {
+    const eventDate = new Date(event.fields.date);
+    return eventDate >= new Date();
+  }).sort((a, b) => new Date(a.fields.date).getTime() - new Date(b.fields.date).getTime());
 
   // Debug: Log to console to check if component is mounting
   console.log('App component mounted', { events, upcomingEvents, loading, error });
@@ -360,11 +387,11 @@ function App() {
                   }
                 };
                 
-                const colors = getCategoryColor(event.category);
+                const colors = getCategoryColor(event.fields.category);
                 
                 return (
                   <div 
-                    key={event.id} 
+                    key={event.sys.id} 
                     className="group bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 opacity-0 animate-fade-in-up hover:scale-105 relative overflow-hidden" 
                     style={{ animationDelay: `${600 + index * 200}ms` }}
                   >
@@ -375,40 +402,34 @@ function App() {
                       <div className="flex items-center justify-between mb-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full ${colors.border} text-sm font-medium`}>
                           <Users size={14} className="mr-1" />
-                          {event.category}
+                          {event.fields.category}
                         </span>
                         <div className={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center`}>
-                          {event.category.toLowerCase() === 'creative' ? <Star size={20} className="text-white" /> : <Heart size={20} className="text-white" />}
+                          {event.fields.category.toLowerCase() === 'creative' ? <Star size={20} className="text-white" /> : <Heart size={20} className="text-white" />}
                         </div>
                       </div>
 
                       <h3 className="text-2xl sm:text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors duration-300 mb-4">
-                        {event.title}
+                        {event.fields.title}
                       </h3>
                       
                       <div className="space-y-2 text-gray-600 mb-6">
                         <div className="flex items-center space-x-2">
                           <Calendar size={16} className="text-purple-500" />
-                          <p className="font-semibold text-base">{formatEventDate(event.date)}, {event.time}</p>
+                          <p className="font-semibold text-base">{formatEventDate(event.fields.date)}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <MapPin size={16} className="text-purple-500" />
-                          <p className="text-base">{event.location}</p>
+                          <p className="text-base">{event.fields.location}</p>
                         </div>
-                        {event.price && (
-                          <div className="flex items-center space-x-2">
-                            <CreditCard size={16} className="text-purple-500" />
-                            <p className="text-base font-semibold">{event.price} kr</p>
-                          </div>
-                        )}
                       </div>
                       
                       <p className="text-gray-700 leading-relaxed text-base mb-8">
-                        {event.shortDescription || event.description}
+                        {event.fields.description}
                       </p>
                       
                       <a 
-                        href={event.stripeLink} 
+                        href={event.fields.stripePaymentLink} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-base flex items-center justify-center space-x-2 group"

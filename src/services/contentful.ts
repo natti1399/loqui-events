@@ -1,0 +1,55 @@
+import { createClient } from 'contentful';
+
+const client = createClient({
+  space: import.meta.env.VITE_CONTENTFUL_SPACE_ID,
+  environment: import.meta.env.VITE_CONTENTFUL_ENVIRONMENT || 'master',
+  accessToken: import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN,
+});
+
+export interface ContentfulEvent {
+  sys: {
+    id: string;
+  };
+  fields: {
+    title: string;
+    description: string;
+    date: string;
+    location: string;
+    stripePaymentLink: string;
+    featuredImage?: {
+      fields: {
+        file: {
+          url: string;
+        };
+      };
+    };
+    category: string;
+    published: boolean;
+  };
+}
+
+export const getEvents = async (): Promise<ContentfulEvent[]> => {
+  try {
+    const response = await client.getEntries({
+      content_type: 'event',
+      'fields.published': true,
+      order: 'fields.date',
+    });
+    return response.items as ContentfulEvent[];
+  } catch (error) {
+    console.error('Error fetching events from Contentful:', error);
+    return [];
+  }
+};
+
+export const getEvent = async (id: string): Promise<ContentfulEvent | null> => {
+  try {
+    const entry = await client.getEntry(id);
+    return entry as ContentfulEvent;
+  } catch (error) {
+    console.error('Error fetching event from Contentful:', error);
+    return null;
+  }
+};
+
+export default client;
