@@ -133,6 +133,12 @@ async function handleSameOriginRequest(request) {
 // Handle external requests with network-first strategy
 async function handleExternalRequest(request) {
   try {
+    // Skip caching for unsupported schemes (chrome-extension, etc.)
+    const url = new URL(request.url);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return fetch(request);
+    }
+
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       const cache = await caches.open(DYNAMIC_CACHE);

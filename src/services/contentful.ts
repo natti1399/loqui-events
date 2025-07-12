@@ -1,9 +1,22 @@
 import { createClient } from 'contentful';
 
+// Validate environment variables
+const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN;
+const environment = import.meta.env.VITE_CONTENTFUL_ENVIRONMENT || 'master';
+
+if (!spaceId || !accessToken) {
+  console.error('Missing Contentful environment variables:', {
+    spaceId: !!spaceId,
+    accessToken: !!accessToken,
+    environment
+  });
+}
+
 const client = createClient({
-  space: import.meta.env.VITE_CONTENTFUL_SPACE_ID,
-  environment: import.meta.env.VITE_CONTENTFUL_ENVIRONMENT || 'master',
-  accessToken: import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN,
+  space: spaceId,
+  environment,
+  accessToken,
 });
 
 export interface ContentfulEvent {
