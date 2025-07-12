@@ -37,7 +37,6 @@ export interface ContentfulEvent {
       };
     };
     category: string;
-    published: boolean;
   };
 }
 
@@ -45,11 +44,11 @@ export const getEvents = async (): Promise<ContentfulEvent[]> => {
   try {
     const response = await client.getEntries({
       content_type: 'event',
-      'fields.published': true,
       order: 'fields.date',
     });
     return response.items as ContentfulEvent[];
   } catch (error) {
+    console.error('Error fetching events from Contentful:', error);
     return [];
   }
 };
